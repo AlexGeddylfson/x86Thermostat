@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ThermostatBacking": {
+      "commandName": "Project",
+      "remoteDebugEnabled": true,
+      "remoteDebugMachine": "192.168.1.202",
+      "authenticationMode": "None"
+    }
+  }
+}
