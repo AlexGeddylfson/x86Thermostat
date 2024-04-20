@@ -1,113 +1,127 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using System.Data;
+using Microsoft.AspNetCore.Internal;
 
-public class Server
+public class ServerController
 {
-    static MySqlConnection dbConnection;
-
-    public static void Main(string[] args)
+    public void Start()
     {
-        var config = LoadConfig();
-        var databaseConfig = config.GetSection("database_config");
-
-        // Retrieve database configuration values
-        var host = databaseConfig["host"];
-        var user = databaseConfig["user"];
-        var password = databaseConfig["password"];
-        var databaseName = databaseConfig["database_name"];
-
-        // Connect to MySQL database
-        string connectionString = $"Server={host};User ID={user};Password={password};Database={databaseName};";
-        dbConnection = new MySqlConnection(connectionString);
-        dbConnection.Open();
-
-        var webHost = new WebHostBuilder()
-            .UseKestrel()
-            .Configure(app =>
-            {
-                app.Run(async context =>
-                {
-                    if (context.Request.Path == "/api/sensor_data" && context.Request.Method == "POST")
-                    {
-                        await ReceiveData(context);
-                    }
-                    else if (context.Request.Path == "/api/get_current_temperature" && context.Request.Method == "GET")
-                    {
-                        await GetCurrentTemperature(context);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 404;
-                    }
-                });
-            })
-            .Build();
-
-        webHost.Run();
+        Console.WriteLine("Starting server...");
+        // Additional server starting logic would be added here if needed
     }
 
-    static IConfiguration LoadConfig()
+    public class Startup
     {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("config.json")
-            .Build();
-
-        return configuration;
-    }
-
-    static async Task ReceiveData(HttpContext context)
-    {
-        using (var reader = new StreamReader(context.Request.Body))
+        public void ConfigureServices(IServiceCollection services)
         {
-            var data = await reader.ReadToEndAsync();
-            Console.WriteLine("Received data: " + data);
-
-            // Parse data and insert into database
-            // Assuming data is in JSON format with "device_id", "temperature", "humidity" properties
-
-            var jsonData = JsonSerializer.Deserialize<Dictionary<string, object>>(data);
-            var device_id = (string)jsonData["device_id"];
-            var temperature = Convert.ToSingle(jsonData["temperature"]);
-            var humidity = Convert.ToSingle(jsonData["humidity"]);
-
-            using (var cmd = new MySqlCommand("INSERT INTO sensor_data (device_id, temperature, humidity, timestamp, ip_address) VALUES (@device_id, @temperature, @humidity, @timestamp, @ip_address)", dbConnection))
-            {
-                cmd.Parameters.AddWithValue("@device_id", device_id);
-                cmd.Parameters.AddWithValue("@temperature", temperature);
-                cmd.Parameters.AddWithValue("@humidity", humidity);
-                cmd.Parameters.AddWithValue("@timestamp", DateTime.UtcNow);
-                cmd.Parameters.AddWithValue("@ip_address", context.Connection.RemoteIpAddress.ToString());
-                cmd.ExecuteNonQuery();
-            }
+            // Add DbContext with SQLite
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite("Data Source=mydatabase.db"));
         }
 
-        context.Response.StatusCode = 200;
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            // Middleware configuration goes here
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Hello World!");
+                });
+            });
+        }
     }
 
-    static async Task GetCurrentTemperature(HttpContext context)
+    public class ApplicationDbContext : DbContext
     {
-        using (var cmd = new MySqlCommand("SELECT temperature FROM sensor_data ORDER BY timestamp DESC LIMIT 1", dbConnection))
-        using (var reader = cmd.ExecuteReader())
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        public DbSet<SensorData> SensorData { get; set; }
+        public DbSet<UserSettings> UserSettings { get; set; }
+        public DbSet<OutsideTemperature> OutsideTemperature { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (reader.Read())
-            {
-                var temperature = reader.GetFloat(0);
-                var responseJson = JsonSerializer.Serialize(new { temperature });
-                await context.Response.WriteAsync(responseJson);
-            }
-            else
-            {
-                context.Response.StatusCode = 404;
-            }
+            modelBuilder.Entity<SensorData>().ToTable("sensor_data");
+            modelBuilder.Entity<UserSettings>().ToTable("user_settings");
+            modelBuilder.Entity<OutsideTemperature>().ToTable("outside_temperature");
+
+            modelBuilder.Entity<SensorData>().Property(p => p.IpAddress).HasMaxLength(15);
+            modelBuilder.Entity<UserSettings>().Property(p => p.DeviceId).HasMaxLength(255);
+            modelBuilder.Entity<OutsideTemperature>().Property(p => p.Temperature).HasColumnType("DECIMAL(5, 2)");
+        }
+    }
+
+    public class SensorData
+    {
+        public int Id { get; set; }
+        public string DeviceId { get; set; }
+        public decimal Temperature { get; set; }
+        public decimal Humidity { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string IpAddress { get; set; }
+    }
+
+    public class UserSettings
+    {
+        public int Id { get; set; }
+        public string DeviceId { get; set; }
+        public decimal TargetTemperature { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class OutsideTemperature
+    {
+        public int Id { get; set; }
+        public decimal Temperature { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public static void InitializeDatabase()
+    {
+        using (var connection = new SqliteConnection("Data Source=mydatabase.db"))
+        {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+CREATE TABLE sensor_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(255),
+    temperature DECIMAL(5, 2),
+    humidity DECIMAL(5, 2),
+    timestamp TIMESTAMP,
+    ip_address VARCHAR(15)
+);
+
+CREATE TABLE user_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(255),
+    target_temperature DECIMAL(5, 2),
+    timestamp TIMESTAMP
+);
+
+CREATE TABLE outside_temperature (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    temperature DECIMAL(5, 2),
+    timestamp TIMESTAMP
+);
+            ";
+            command.ExecuteNonQuery();
         }
     }
 }
