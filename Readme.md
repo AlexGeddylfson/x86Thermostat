@@ -134,7 +134,7 @@ cd ThermostatController-linux-x64
 #### Clone and Build
 ```bash
 git clone https://github.com/AlexGeddylfson/x86Thermostat.git
-cd thermostat-controller
+cd x86Thermostat
 dotnet restore
 dotnet build
 ```
