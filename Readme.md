@@ -88,7 +88,7 @@ Once the server is running, set up your temperature probes and thermostats. They
 
 ### 3. Install the Mobile App
 Control everything from your phone, computer, or browser:
-- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter app for Android, Windows, Linux, and Web
+- [**[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)**](https://github.com/AlexGeddylfson/x86ThermostatApp) - Flutter app for Android, Windows, Linux, and Web
 
 **Example Configuration Files:**
 - `config.server.json` - Example server configuration
