@@ -50,6 +50,7 @@ Remote temperature sensor that reports to a central server.
 - Arduino (Uno, Nano, etc.) running DHT22 sensor code
 - 4-channel relay module controlled via serial port
 - Works on Windows and Linux
+- **Arduino sketch included**: `arduino_dht22_reader.ino`
 
 #### Raspberry Pi Native
 - DHT22 sensor connected to GPIO pin
@@ -59,7 +60,7 @@ Remote temperature sensor that reports to a central server.
 #### FTDI BitBang Mode
 - FT232R/FT245R USB-to-Serial adapter
 - Up to 8 relays controlled via BitBang mode
-- Arduino for DHT22 sensor reading
+- Arduino for DHT22 sensor reading (uses `arduino_dht22_reader.ino`)
 - Requires libftdi1 on Linux
 
 ## Deployment Workflow
@@ -88,7 +89,7 @@ Once the server is running, set up your temperature probes and thermostats. They
 
 ### 3. Install the Mobile App
 Control everything from your phone:
-- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - iOS and Android
+- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter
 
 **Example Configuration Files:**
 - `config.server.json` - Example server configuration
@@ -343,10 +344,26 @@ sudo systemctl start thermostat
 
 ## Hardware Wiring
 
+### Arduino Setup
+
+1. **Upload the sketch**:
+   - Open `arduino_dht22_reader.ino` in Arduino IDE
+   - Install DHT sensor library: Sketch → Include Library → Manage Libraries → Search "DHT sensor library" by Adafruit
+   - Also install "Adafruit Unified Sensor" library (dependency)
+   - Select your Arduino board and port
+   - Upload the sketch
+
+2. **Verify operation**:
+   - Open Serial Monitor (9600 baud)
+   - Type 'R' and press Enter
+   - Should see: `T:72.5,H:45.0` (temperature in Fahrenheit, humidity in %)
+
 ### DHT22 Sensor to Arduino
 - VCC → 5V
 - GND → GND
 - DATA → Digital Pin 2 (configurable in Arduino code)
+
+**Note**: The Arduino sketch converts temperature to Fahrenheit. The C# application expects Fahrenheit values.
 
 ### Relay Module
 4-channel relay module connected to GPIO pins or controlled via serial/FTDI:
