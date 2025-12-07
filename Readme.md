@@ -15,8 +15,7 @@ A flexible, multi-mode thermostat controller for heat pump systems with emergenc
 - **Web API**: REST API for temperature monitoring and control
 - **Smart Emergency Heat**: Automatically activates emergency heat when heat pump performance drops below threshold
 - **Flexible Configuration**: JSON-based configuration with comprehensive validation
-- **Database Support**: SQLite and MySQL support for data logging
-
+- **Database Support**: SQLite
 ## Mobile App
 
 Control your thermostat from anywhere with the companion mobile app:
