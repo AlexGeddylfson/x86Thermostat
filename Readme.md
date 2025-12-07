@@ -20,7 +20,7 @@ A flexible, multi-mode thermostat controller for heat pump systems with emergenc
 ## Mobile App
 
 Control your thermostat from anywhere with the companion mobile app:
-- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter app for remote control and monitoring
+- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter app available for Android, Windows, Linux, and Web
 
 ## Deployment Modes
 
@@ -88,8 +88,8 @@ Once the server is running, set up your temperature probes and thermostats. They
 ```
 
 ### 3. Install the Mobile App
-Control everything from your phone:
-- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter
+Control everything from your phone, computer, or browser:
+- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter app for Android, Windows, Linux, and Web
 
 **Example Configuration Files:**
 - `config.server.json` - Example server configuration
@@ -100,24 +100,29 @@ Control everything from your phone:
 
 ### From Pre-compiled Binaries
 
-Download the appropriate release for your platform:
+Download the appropriate release for your platform from [Releases](https://github.com/AlexGeddylfson/x86Thermostat/releases):
 
 #### Raspberry Pi (ARM64)
 ```bash
-wget https://github.com/yourusername/thermostat-controller/releases/download/v1.0/thermostat-linux-arm64.tar.gz
-tar -xzf thermostat-linux-arm64.tar.gz
-cd thermostat-linux-arm64
+wget https://github.com/AlexGeddylfson/x86Thermostat/releases/latest/download/ThermostatController-linux-arm64.tar.gz
+tar -xzf ThermostatController-linux-arm64.tar.gz
+cd ThermostatController-linux-arm64
 ```
 
 #### Linux (x64)
 ```bash
-wget https://github.com/yourusername/thermostat-controller/releases/download/v1.0/thermostat-linux-x64.tar.gz
-tar -xzf thermostat-linux-x64.tar.gz
-cd thermostat-linux-x64
+wget https://github.com/AlexGeddylfson/x86Thermostat/releases/latest/download/ThermostatController-linux-x64.tar.gz
+tar -xzf ThermostatController-linux-x64.tar.gz
+cd ThermostatController-linux-x64
 ```
 
 #### Windows (x64)
-Download `thermostat-win-x64.zip` from releases, extract, and run `ThermostatController.exe`
+```bash
+# Download ThermostatController-win-x64.zip from releases
+# Extract and run ThermostatController.exe
+```
+
+**Note**: All releases include the same application. Configure deployment mode (Server, Thermostat, Probe, or Hybrid) in `config.json` after installation.
 
 ### From Source
 
@@ -128,7 +133,7 @@ Download `thermostat-win-x64.zip` from releases, extract, and run `ThermostatCon
 
 #### Clone and Build
 ```bash
-git clone https://github.com/yourusername/thermostat-controller.git
+git clone https://github.com/AlexGeddylfson/x86Thermostat.git
 cd thermostat-controller
 dotnet restore
 dotnet build
