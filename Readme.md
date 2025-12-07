@@ -19,7 +19,7 @@ A flexible, multi-mode thermostat controller for heat pump systems with emergenc
 ## Mobile App
 
 Control your thermostat from anywhere with the companion mobile app:
-- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/Thermostat-App)** - Flutter app available for Android, Windows, Linux, and Web
+- **[Thermostat Mobile App](https://github.com/AlexGeddylfson/x86ThermostatApp)** - Flutter app available for Android, Windows, Linux, and Web
 
 ## Deployment Modes
 
